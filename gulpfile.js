@@ -34,7 +34,7 @@ gulp.task('less', ['copy'], function () {
 
 gulp.task('build-js', ['less'], function() {
   return browserify('./www/src/js/app.js')
-    .transform(babelify)
+    .transform(babelify, {presets: ["es2015", "react"]})
     .bundle()
     .pipe(source('app.js'))
     .pipe(gulp.dest('./www/build/js/'))

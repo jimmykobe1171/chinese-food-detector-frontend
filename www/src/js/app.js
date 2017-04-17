@@ -1,34 +1,35 @@
-var React = require('react');
-var Router = require('react-router');
+import React, { Component } from 'react';
+import { render } from 'react-dom';
+import { BrowserRouter as Router, Route, Link } from 'react-router-dom'
+import { Nav,Navbar, NavItem } from 'react-bootstrap';
 
-require('react-fastclick');
+// require('react-fastclick');
 
-var Route = Router.Route;
-var NotFoundRoute = Router.NotFoundRoute;
-var DefaultRoute = Router.DefaultRoute;
-var RouteHandler = Router.RouteHandler;
+import HomePage from './pages/home';
+import AboutPage from './pages/about';
 
-var HomePage = require('./pages/home');
-var AboutPage = require('./pages/about');
 
-var App = React.createClass({
-  render: function () {
-    return (
+render(
+    <Router>
       <div>
-        <RouteHandler />
+        <Navbar inverse collapseOnSelect>
+          <Navbar.Header>
+            <Navbar.Brand>
+              <div>React-Bootstrap</div>
+            </Navbar.Brand>
+            <Navbar.Toggle />
+          </Navbar.Header>
+          <Navbar.Collapse>
+            <Nav>
+              <NavItem eventKey={1} ><Link to="/">Home</Link></NavItem>
+              <NavItem eventKey={2} ><Link to="/about">About</Link></NavItem>
+            </Nav>
+          </Navbar.Collapse>
+        </Navbar>
+
+        <Route exact path="/" component={HomePage}/>
+        <Route path="/about" component={AboutPage}/>
       </div>
-    );
-  }
-});
-
-var routes = (
-  <Route handler={App} path="/">
-    <DefaultRoute handler={HomePage} />
-    <Route name="home" handler={HomePage}/>
-    <Route name="about" handler={AboutPage}/>
-  </Route>
+    </Router>,
+    document.getElementById('app')
 );
-
-Router.run(routes, function (Handler) {
-  React.render(<Handler/>, document.getElementById('app'));
-});

@@ -1,27 +1,25 @@
-var React = require('react');
-var Router = require('react-router');
+import React, { Component } from 'react';
+import { Redirect } from 'react-router-dom'
 
-var AboutPage = React.createClass({
-  mixins: [
-    Router.Navigation
-  ],
 
-  goHome: function () {
-    this.transitionTo('home');
-  },
 
-  render: function () {
-    return (
-      <div className='about-page'>
-        <header className="bar bar-nav">
-          <button className="btn btn-link btn-nav pull-left" onClick={this.goHome}>
-            <i className="fa fa-chevron-left"></i> Back
-          </button>
-          <h1 className="title">React Cordova</h1>
-        </header>
-      </div>
-    );
-  }
-});
+class AboutPage extends React.Component {
+    // mixins: [
+    //   Router.Navigation
+    // ]
 
-module.exports = AboutPage;
+    goHome() {
+        // this.transitionTo('home');
+    }
+
+    render() {
+        return ( 
+            < div className = 'about-page' >
+                about page
+            < /div >
+        );
+    }
+}
+
+
+export default AboutPage;
