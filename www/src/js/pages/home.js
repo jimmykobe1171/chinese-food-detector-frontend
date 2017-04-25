@@ -17,21 +17,55 @@ class HomePage extends React.Component {
   // componentWillUnmount() {
 
   // }
+  
+  upload(fileEntry) {
+      // !! Assumes variable fileURL contains a valid URL to a text file on the device,
+      const fileURL = fileEntry.toURL();
+      console.log('file url:: ' + fileURL);
 
-  setOptions(srcType) {
-      var options = {
-          // Some common settings are 20, 50, and 100
-          quality: 50,
-          destinationType: Camera.DestinationType.FILE_URI,
-          // In this app, dynamically set the picture source, Camera or photo gallery
-          sourceType: srcType,
-          encodingType: Camera.EncodingType.JPEG,
-          mediaType: Camera.MediaType.PICTURE,
-          allowEdit: true,
-          correctOrientation: true  //Corrects Android orientation quirks
+      const success = function (r) {
+          console.log("Successful upload...");
+          console.log("Code = " + r.responseCode);
+          // displayFileData(fileEntry.fullPath + " (content uploaded to server)");
       }
-      return options;
+
+      const fail = function (error) {
+          alert("An error has occurred: Code = " + error.code);
+      }
+
+      const options = new FileUploadOptions();
+      options.fileKey = "file";
+      options.fileName = fileURL.substr(fileURL.lastIndexOf('/') + 1);
+      options.mimeType = "text/plain";
+
+      const params = {};
+      params.value1 = "test";
+      params.value2 = "param";
+
+      options.params = params;
+
+      const ft = new FileTransfer();
+      // SERVER must be a URL that can handle the request, like
+      
+      // ft.upload(fileURL, encodeURI(SERVER), success, fail, options);
+  };
+
+  uploadImage(imgUri) {
+      console.log('image uri: ' + imgUri);
+      this.getFileEntry(imgUri, this.upload);
   }
+
+  getFileEntry(imgUri, successCallback) {
+      window.resolveLocalFileSystemURL(imgUri, function success(fileEntry) {
+          console.log("got file: " + fileEntry.fullPath);
+          successCallback(fileEntry);
+      }, function () {
+        // If don't get the FileEntry (which may happen when testing
+        // on some emulators), copy to a new FileEntry.
+          console.log("could not get file entry ");
+      });
+  }
+
   openFilePicker() {
       const srcType = Camera.PictureSourceType.SAVEDPHOTOALBUM;
       const options = {
@@ -46,10 +80,8 @@ class HomePage extends React.Component {
           correctOrientation: true  //Corrects Android orientation quirks
       }
       navigator.camera.getPicture(function cameraSuccess(imageUri) {
-
-          alert(imageUri);
-
-      }, function cameraError(error) {
+          this.uploadImage(imageUri);
+      }.bind(this), function cameraError(error) {
           console.debug("Unable to obtain picture: " + error, "app");
       }, options);
   }
