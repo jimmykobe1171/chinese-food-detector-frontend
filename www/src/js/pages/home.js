@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
-
+import Spinner from'react-spinkit';
 
 class HomePage extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {goToAbout: false};
+    this.state = {loading: false};
   }
 
   // componentDidMount() {
@@ -27,9 +27,11 @@ class HomePage extends React.Component {
           console.log("Successful upload...");
           console.log("Code = " + r.responseCode);
           // displayFileData(fileEntry.fullPath + " (content uploaded to server)");
+          this.setState({loading: false});
       }
       const fail = function (error) {
           alert("An error has occurred: Code = " + error.code);
+          this.setState({loading: false});
       }
       const options = new FileUploadOptions();
       options.fileKey = "file";
@@ -39,13 +41,14 @@ class HomePage extends React.Component {
       options.chunkedMode = false;
 
       const ft = new FileTransfer();
-      const apiUrl = 'http://160.39.132.60:8888/api/upload-food-image/'      
-      ft.upload(fileURL, encodeURI(apiUrl), success, fail, options);
+      const apiUrl = 'http://160.39.132.60:8888/api/upload-food-image/';
+      this.setState({loading: true});
+      ft.upload(fileURL, encodeURI(apiUrl), success.bind(this), fail.bind(this), options);
   };
 
   uploadImage(imgUri) {
       console.log('image uri: ' + imgUri);
-      this.getFileEntry(imgUri, this.upload);
+      this.getFileEntry(imgUri, this.upload.bind(this));
   }
 
   getFileEntry(imgUri, successCallback) {
@@ -55,7 +58,7 @@ class HomePage extends React.Component {
       }, function () {
         // If don't get the FileEntry (which may happen when testing
         // on some emulators), copy to a new FileEntry.
-          console.log("could not get file entry ");
+          alert("could not get file entry ");
       });
   }
 
@@ -75,7 +78,7 @@ class HomePage extends React.Component {
       navigator.camera.getPicture(function cameraSuccess(imageUri) {
           this.uploadImage(imageUri);
       }.bind(this), function cameraError(error) {
-          console.debug("Unable to obtain picture: " + error, "app");
+          alert("Unable to obtain picture: " + error, "app");
       }, options);
   }
 
@@ -83,13 +86,32 @@ class HomePage extends React.Component {
       this.openFilePicker();
   }
 
+  getLoadingIndicator() {
+    const styles = {
+      position: 'fixed',
+      left: '42%',
+      top: '50%',
+      zIndex: '9999',
+    };
+
+    const indicator = (
+      <div style={styles}>
+        <Spinner spinnerName='three-bounce' />
+      </div>
+        );
+    return indicator;
+  }
+
   render() {
-    if (this.state.goToAbout) {
-      return <Redirect to="/result" />;
+    let loadingIndicator = null;
+    if (this.state.loading) {
+      loadingIndicator = this.getLoadingIndicator();
     }
+    // loadingIndicator = this.getLoadingIndicator();
     const wellStyles = {margin: "auto", width: "40%"};
     return (
       <div className='homepage'>
+        {loadingIndicator}
         <div style={wellStyles}>
           <Button bsStyle="primary" bsSize="large" onClick={this.chooseImage.bind(this)}>Choose Image</Button>
         </div>
