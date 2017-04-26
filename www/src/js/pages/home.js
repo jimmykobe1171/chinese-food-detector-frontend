@@ -28,26 +28,19 @@ class HomePage extends React.Component {
           console.log("Code = " + r.responseCode);
           // displayFileData(fileEntry.fullPath + " (content uploaded to server)");
       }
-
       const fail = function (error) {
           alert("An error has occurred: Code = " + error.code);
       }
-
       const options = new FileUploadOptions();
       options.fileKey = "file";
       options.fileName = fileURL.substr(fileURL.lastIndexOf('/') + 1);
-      options.mimeType = "text/plain";
-
-      const params = {};
-      params.value1 = "test";
-      params.value2 = "param";
-
-      options.params = params;
+      // options.fileName = 'test';
+      options.mimeType = "image/jpeg";
+      options.chunkedMode = false;
 
       const ft = new FileTransfer();
-      // SERVER must be a URL that can handle the request, like
-      
-      // ft.upload(fileURL, encodeURI(SERVER), success, fail, options);
+      const apiUrl = 'http://160.39.132.60:8888/api/upload-food-image/'      
+      ft.upload(fileURL, encodeURI(apiUrl), success, fail, options);
   };
 
   uploadImage(imgUri) {
