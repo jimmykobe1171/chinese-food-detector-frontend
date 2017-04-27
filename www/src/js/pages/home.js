@@ -1,13 +1,20 @@
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
-import { Button } from 'react-bootstrap';
+import { Button, Modal } from 'react-bootstrap';
 import Spinner from'react-spinkit';
+
+const API_DOMAIN = 'http://160.39.133.251:8888';
+
 
 class HomePage extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {loading: false};
+    this.state = {
+      loading: false,
+      showModal: false,
+      result: {}
+    };
   }
 
   // componentDidMount() {
@@ -26,7 +33,19 @@ class HomePage extends React.Component {
       const success = function (r) {
           console.log("Successful upload...");
           console.log("Code = " + r.responseCode);
-          // displayFileData(fileEntry.fullPath + " (content uploaded to server)");
+          try {
+            const data = JSON.parse(r.response);
+            this.setState({
+              showModal: true,
+              result: {
+                foodName: data.food_name,
+                foodDescription: data.food_description,
+                image: API_DOMAIN + data.image,
+              }
+            });
+          } catch(e) {
+              alert(e);
+          }
           this.setState({loading: false});
       }
       const fail = function (error) {
@@ -41,7 +60,7 @@ class HomePage extends React.Component {
       options.chunkedMode = false;
 
       const ft = new FileTransfer();
-      const apiUrl = 'http://160.39.132.60:8888/api/upload-food-image/';
+      const apiUrl = API_DOMAIN + '/api/upload-food-image/';
       this.setState({loading: true});
       ft.upload(fileURL, encodeURI(apiUrl), success.bind(this), fail.bind(this), options);
   };
@@ -102,16 +121,45 @@ class HomePage extends React.Component {
     return indicator;
   }
 
+  openModal() {
+    this.setState({ showModal: true });
+  }
+
+  closeModal() {
+    this.setState({ showModal: false });
+  }
+
+  getResultModal() {
+    const data = this.state.result;
+    const modal = (
+      <Modal show={this.state.showModal} onHide={this.closeModal.bind(this)}>
+          <Modal.Header closeButton>
+            <Modal.Title>{data.foodName}</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <img src={data.image} />
+            <p>{data.foodDescription}</p>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button onClick={this.closeModal.bind(this)}>Close</Button>
+          </Modal.Footer>
+        </Modal>
+      );
+    return modal;
+  }
+
   render() {
     let loadingIndicator = null;
     if (this.state.loading) {
       loadingIndicator = this.getLoadingIndicator();
     }
+    const resultModal = this.getResultModal();
     // loadingIndicator = this.getLoadingIndicator();
     const wellStyles = {margin: "auto", width: "40%"};
     return (
       <div className='homepage'>
         {loadingIndicator}
+        {resultModal}
         <div style={wellStyles}>
           <Button bsStyle="primary" bsSize="large" onClick={this.chooseImage.bind(this)}>Choose Image</Button>
         </div>
